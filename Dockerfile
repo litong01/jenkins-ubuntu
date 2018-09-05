@@ -30,8 +30,8 @@ ENV JENKINS_SLAVE_AGENT_PORT 50000
 
 ARG user=jenkins
 ARG group=jenkins
-ARG uid=1001
-ARG gid=1001
+ARG uid=1000
+ARG gid=1000
 
 # Jenkins is run with user `jenkins`, uid = 1001
 # If you bind mount a volume from the host or a data container,
@@ -80,8 +80,11 @@ RUN \
   wget -q -O - https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo apt-key add - && \
   echo "deb https://pkg.jenkins.io/debian-stable binary/" >> /etc/apt/sources.list && \
   apt-get update && \
-  apt-get install -y jenkins
+  apt-get install -y jenkins python-pip openssh-client sudo    && \
+  pip install --upgrade pip ansible pyyaml             && \
+  echo 'jenkins ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers.d/jenkins
 
+ADD https://storage.googleapis.com/kubernetes-release/release/v1.11.2/bin/linux/amd64/kubectl /usr/local/bin/kubectl
 ENV JENKINS_UC https://updates.jenkins.io
 RUN chown -R ${user} "$JENKINS_HOME" /usr/share/jenkins/ref
 
